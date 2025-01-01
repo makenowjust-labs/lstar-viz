@@ -1,6 +1,6 @@
 function App() {
   return (
-    <h1>Angluin's L* Algorithm Visualization</h1>
+    <h1 className="text-3xl font-bold underline">Angluin's L* Algorithm Visualization</h1>
   )
 }
 
