@@ -1,7 +1,9 @@
 function App() {
   return (
-    <h1 className="text-3xl font-bold underline">Angluin's L* Algorithm Visualization</h1>
-  )
+    <h1 className="text-3xl font-bold underline">
+      Angluin's L* Algorithm Visualization
+    </h1>
+  );
 }
 
-export default App
+export default App;

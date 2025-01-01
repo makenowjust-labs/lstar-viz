@@ -1,3 +1,3 @@
 # lstar-viz
 
-> Angluin's L* Algorithm Visualization
+> Angluin's L\* Algorithm Visualization
