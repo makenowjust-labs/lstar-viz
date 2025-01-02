@@ -1,5 +1,5 @@
 import type { Speed } from "@/types";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import * as d3 from "d3";
 import { type Graphviz, graphviz } from "d3-graphviz";
 import { useRef, useEffect } from "react";
