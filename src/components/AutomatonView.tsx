@@ -4,12 +4,12 @@ import * as d3 from "d3";
 import { type Graphviz, graphviz } from "d3-graphviz";
 import { useRef, useEffect } from "react";
 
-type AutomatonViewProps = {
+type Props = {
 	dot: string;
 	speed: Speed;
 };
 
-export function AutomatonView({ dot, speed }: AutomatonViewProps) {
+export function AutomatonView({ dot, speed }: Props) {
 	const automaton = useRef<HTMLDivElement>(null);
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>

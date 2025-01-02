@@ -25,7 +25,7 @@ import {
 import { PlayIcon } from "lucide-react";
 import { useState, useCallback } from "react";
 
-type ControlPanelProps = {
+type Props = {
 	isRunning: boolean;
 	targetDOT: string;
 	cexProcessMethod: CexProcessMethod;
@@ -51,7 +51,7 @@ export function ControlPanel({
 	onReset,
 	onUpdateCexProcessMethod,
 	onUpdateSpeed,
-}: ControlPanelProps) {
+}: Props) {
 	const [open, setOpen] = useState(false);
 
 	const onChangeTextarea = useCallback(

@@ -3,11 +3,11 @@ import { Cross2Icon } from "@radix-ui/react-icons";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { CheckIcon } from "lucide-react";
 
-type ObservationTableViewProps = {
+type Props = {
 	table: ObservationTable | null;
 };
 
-export function ObservationTableView({ table }: ObservationTableViewProps) {
+export function ObservationTableView({ table }: Props) {
 	const separators = table?.separators ?? [];
 	const states = table?.states ?? new Map<string, boolean[]>();
 	const extensions = table?.extensions ?? new Map<string, boolean[]>();
