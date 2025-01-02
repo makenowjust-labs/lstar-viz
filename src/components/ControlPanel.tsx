@@ -21,7 +21,7 @@ import {
 	SelectGroup,
 	SelectLabel,
 	SelectItem,
-} from "@radix-ui/react-select";
+} from "@/components/ui/select";
 import { PlayIcon } from "lucide-react";
 import { useState, useCallback } from "react";
 
