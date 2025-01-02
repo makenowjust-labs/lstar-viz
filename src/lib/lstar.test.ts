@@ -51,7 +51,7 @@ test("learn", () => {
     'The result of MQ("00" + "") is true.',
     'An extension prefix "01" is added to the observation table.',
     'The result of MQ("01" + "") is false.',
-    "The observation table is closed and consistent.",
+    "The observation table is closed and consistent. Let's check equivalence.",
     'A counterexample "010" is found.',
     'A separator "0" is added to the observation table.',
     'The result of MQ("" + "0") is false.',
@@ -66,7 +66,7 @@ test("learn", () => {
     'An extension prefix "011" is added to the observation table.',
     'The result of MQ("011" + "") is true.',
     'The result of MQ("011" + "0") is false.',
-    "The observation table is closed and consistent.",
+    "The observation table is closed and consistent. Let's check equivalence.",
     "The hypothesis is equivalent to the target automaton. Learning is done.",
   ]);
 
