@@ -1,6 +1,6 @@
 import type { ObservationTable } from "@/lib/lstar";
 import { Cross2Icon } from "@radix-ui/react-icons";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { CheckIcon } from "lucide-react";
 
 type Props = {
