@@ -167,7 +167,7 @@ export const toDOT = (automaton: Automaton): string => {
   lines.push("digraph {");
   lines.push("  rankdir=LR;");
 
-  lines.push('  __start0 [label="" shape="none"];');
+  lines.push('  __start0 [label="" shape="point"];');
   for (const state of automaton.states) {
     const shape = automaton.accepts.includes(state) ? "doublecircle" : "circle";
     lines.push(`  s${state} [shape="${shape}" label="s${state}"];`);

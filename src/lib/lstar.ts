@@ -1,4 +1,4 @@
-import { Automaton, run } from "./automaton";
+import { Automaton, run } from "@/lib/automaton";
 
 export type Teacher = {
   readonly alphabet: readonly string[];
@@ -14,7 +14,7 @@ export type ObservationTable = {
 
 export type Log = {
   message: string;
-  table: ObservationTable;
+  table: Readonly<ObservationTable>;
   hypothesis?: Automaton;
 };
 
@@ -39,7 +39,11 @@ export const learn = function* (params: Params): Generator<Log, Automaton> {
     hypothesis: Automaton | undefined = undefined,
   ): Log => ({
     message,
-    table,
+    table: Object.freeze({
+      separators: Array.from(table.separators),
+      states: new Map(table.states),
+      extensions: new Map(table.extensions),
+    }),
     hypothesis,
   });
 
@@ -173,8 +177,10 @@ export const learn = function* (params: Params): Generator<Log, Automaton> {
         for (const char of teacher.alphabet) {
           const extension1 = state1 + char;
           const extension2 = state2 + char;
-          const row1 = table.extensions.get(extension1)!;
-          const row2 = table.extensions.get(extension2)!;
+          const row1 =
+            table.states.get(extension1) || table.extensions.get(extension1)!;
+          const row2 =
+            table.states.get(extension2) || table.extensions.get(extension2)!;
 
           const index = row1.findIndex(
             (result, index) => result !== row2[index],
@@ -325,7 +331,8 @@ export const learn = function* (params: Params): Generator<Log, Automaton> {
           const prefix = counterexample.slice(0, mid);
           const stateNumber = run(hypothesis, prefix);
           const statePrefix = numberToStatePrefix.get(stateNumber)!;
-          const result = teacher.membership(statePrefix + counterexample[mid]);
+          const suffix = counterexample.slice(mid, counterexample.length);
+          const result = teacher.membership(statePrefix + suffix);
 
           if (result === expected) {
             low = mid;

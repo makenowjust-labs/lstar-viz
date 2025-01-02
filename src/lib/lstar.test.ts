@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 
-import { learn, Log, Teacher } from "./lstar";
-import { Automaton, diff, parseDOT, run } from "./automaton";
+import { Automaton, diff, parseDOT, run } from "@/lib/automaton";
+import { learn, Log, Teacher } from "@/lib/lstar";
 
 const exampleDOT = `
   digraph g {

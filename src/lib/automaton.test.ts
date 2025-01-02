@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { parseDOT, toDOT, diff, run } from "./automaton";
+import { parseDOT, toDOT, diff, run } from "@/lib/automaton";
 
 const exampleDOT = `
   digraph g {
@@ -48,7 +48,7 @@ test("toDOT", () => {
   expect(toDOT(automaton).split("\n")).toEqual([
     "digraph {",
     "  rankdir=LR;",
-    '  __start0 [label="" shape="none"];',
+    '  __start0 [label="" shape="point"];',
     '  s0 [shape="doublecircle" label="s0"];',
     '  s1 [shape="circle" label="s1"];',
     "  __start0 -> s0;",
