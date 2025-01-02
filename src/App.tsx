@@ -4,7 +4,26 @@ import * as d3 from "d3";
 import { Graphviz, graphviz } from "d3-graphviz";
 
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogHeader,
+  DialogTrigger,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 function App() {
   return (
@@ -17,7 +36,7 @@ function App() {
 
 function Header() {
   return (
-    <header className="block h-11 border-b border-gray-200 my-4">
+    <header className="block h-16 border-b border-gray-200 py-4">
       <h1 className="text-3xl font-bold ml-4 text-primary">
         Angluin's L* Algorithm Visualization
         <small className="ml-2 font-normal">
@@ -52,26 +71,61 @@ function Main() {
 
   return (
     <main className="block px-4 w-screen">
-      <div className="flex mt-4">
+      <div className="flex h-16 pt-4">
         <Button className="w-24">Start</Button>
         <Button className="w-24 ml-2">Next</Button>
-        <Button className="w-24 ml-2" variant="secondary">
-          Config
-        </Button>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button className="w-24 ml-2" variant="secondary">
+              Config
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Configuration</DialogTitle>
+              <DialogDescription>
+                Configure the target automaton.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="">
+              <div className="my-2">
+                <Select>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Choose a preset automaton" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Automaton</SelectLabel>
+                      <SelectItem value="a">A</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Textarea
+                placeholder="Graphviz DOT"
+                rows={10}
+                className="font-mono"
+              />
+            </div>
+            <DialogFooter>
+              <Button>Reset & Restart</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
       <div className="flex mt-4 border-b-4">
-        <ScrollArea className="w-1/2 h-[calc(100vh-25rem)]">
+        <ScrollArea className="w-1/2 h-[calc(100vh-19rem)]">
           <h2 className="ml-2 text-lg font-bold">Automaton</h2>
           <div
             ref={automaton}
             className="absolute top-[1.75rem] bottom-0 left-0 right-0 [&>svg]:h-full [&>svg]:w-full"
           />
         </ScrollArea>
-        <div className="w-1 h-[calc(100vh-25rem)] bg-gray-200"></div>
-        <ScrollArea className="w-1/2 h-[calc(100vh-25rem)]">
+        <div className="w-1 h-[calc(100vh-19rem)] bg-gray-200"></div>
+        <ScrollArea className="w-1/2 h-[calc(100vh-19rem)]">
           <h2 className="ml-2 text-lg font-bold">Observation table</h2>
           <table className="overflow-x-auto w-full text-sm relative">
-            <thead className="sticky top-0 text-gray-700 bg-gray-50 table-fixed text-center">
+            <thead className="sticky top-0 text-gray-700 bg-gray-50 text-center">
               <tr className="my-2">
                 <th></th>
                 <th scope="col">""</th>
@@ -515,9 +569,9 @@ function Main() {
           </table>
         </ScrollArea>
       </div>
-      <div className="w-full mt-2">
-        <h2 className="ml-2 text-lg font-bold">Log</h2>
-        <ScrollArea className="mx-4 mt-2 w-full h-[calc(10rem)]">
+      <ScrollArea className="w-full pt-2 h-[9.5rem]">
+        <h2 className="ml-2 text-lg font-bold sticky top-0 bg-white">Log</h2>
+        <div className="ml-2 text-sm">
           <div>log line...</div>
           <div>log line...</div>
           <div>log line...</div>
@@ -535,8 +589,8 @@ function Main() {
           <div>log line...</div>
           <div>log line...</div>
           <div>log line...</div>
-        </ScrollArea>
-      </div>
+        </div>
+      </ScrollArea>
     </main>
   );
 }
