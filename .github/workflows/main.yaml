@@ -18,6 +18,7 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           version: 9
+          run_install: true
       - name: Lint
         run: pnpm lint
 
@@ -31,6 +32,7 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           version: 9
+          run_install: true
       - name: Lint
         run: pnpm test run
 
@@ -47,6 +49,7 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           version: 9
+          run_install: true
       - name: Build
         run: pnpm build
       - name: Upload Pages artifact
