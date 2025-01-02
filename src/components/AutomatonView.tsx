@@ -28,6 +28,7 @@ export function AutomatonView({ dot, speed }: Props) {
 		viz.current = graphviz(automaton.current, { useWorker: false })
 			.transition(
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 				() => d3.transition().duration(speed === "slow" ? 1000 : 500) as any,
 			)
 			.renderDot(dot);
