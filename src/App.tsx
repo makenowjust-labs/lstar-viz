@@ -65,8 +65,19 @@ function Main() {
 
     viz.current = graphviz(automaton.current, { useWorker: false })
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .transition(() => d3.transition().duration(500) as any)
-      .renderDot("digraph {a -> b}");
+      .transition(() => d3.transition().duration(500) as any).renderDot(`
+        digraph g {
+          rankdir=LR;
+          __start0 [label="" shape="none"]
+          s1 [shape="doublecircle" label="s1"]
+          s2 [shape="circle" label="s2"]
+          __start0 -> s1
+          s1 -> s2[label="0"]
+          s1 -> s1[label="1"]
+          s2 -> s1[label="0"]
+          s2 -> s2[label="1"]
+        }
+      `);
   });
 
   return (
