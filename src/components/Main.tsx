@@ -41,6 +41,7 @@ import {
   learn,
   Log,
   ObservationTable,
+  Stat,
   Teacher,
 } from "@/lib/lstar";
 import { presets, defaultTargetDOT } from "@/lib/presets";
@@ -330,6 +331,7 @@ function ObservationTableView({ table }: ObservationTableViewProps) {
 type LogData = {
   level: "info" | "debug" | "error";
   message: string;
+  stat?: Stat;
 };
 
 const levelToColor = {
@@ -357,13 +359,14 @@ function LogView({ logs }: LogViewProps) {
     <ScrollArea className="w-full pt-2 h-[9.5rem]">
       <h2 className="ml-2 text-lg font-bold sticky top-0 bg-white">Log</h2>
       <div className="ml-2 text-sm">
-        {logs.map(({ message, level }, index) => (
+        {logs.map(({ message, level, stat }, index) => (
           <div
             key={index}
             className={`my-1 ${levelToColor[level]}`}
             {...(index === logs.length - 1 ? { ref: lastLog } : {})}
           >
             {message}
+            {stat ? ` [#MQ: ${stat.mq}, #EQ: ${stat.eq}]` : ""}
           </div>
         ))}
       </div>
@@ -442,10 +445,10 @@ export function Main() {
           return;
         }
 
-        const { message, table, important, hypothesis } = value as Log;
+        const { message, table, important, hypothesis, stat } = value as Log;
         setLogs((logs) => [
           ...logs,
-          { message, level: important ? "info" : "debug" },
+          { message, level: important ? "info" : "debug", stat },
         ]);
         setTable(() => table);
         if (hypothesis !== undefined) {

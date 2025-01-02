@@ -12,11 +12,17 @@ export type ObservationTable = {
   readonly extensions: Map<string, boolean[]>;
 };
 
+export type Stat = {
+  mq: number;
+  eq: number;
+};
+
 export type Log = {
   message: string;
   important: boolean;
   table: Readonly<ObservationTable>;
   hypothesis?: Automaton;
+  stat: Stat;
 };
 
 export type CexProcessMethod = "angluin" | "maler-pnueli" | "rivest-schapire";
@@ -35,6 +41,9 @@ export const learn = function* (params: Params): Generator<Log, Automaton> {
     extensions: new Map<string, boolean[]>(),
   });
 
+  let mq = 0;
+  let eq = 0;
+
   const log = (
     message: string,
     important: boolean = false,
@@ -48,6 +57,7 @@ export const learn = function* (params: Params): Generator<Log, Automaton> {
     }),
     important,
     hypothesis,
+    stat: { mq, eq },
   });
 
   const addState = function* (state: string): Generator<Log, void> {
@@ -67,6 +77,7 @@ export const learn = function* (params: Params): Generator<Log, Automaton> {
     for (const separator of table.separators) {
       const word = state + separator;
       const result = teacher.membership(word);
+      mq++;
       row.push(result);
       yield log(
         `The result of MQ(${JSON.stringify(state)} + ${JSON.stringify(separator)}) is ${result}.`,
@@ -98,6 +109,7 @@ export const learn = function* (params: Params): Generator<Log, Automaton> {
       const row = table.states.get(state)!;
       const word = state + separator;
       const result = teacher.membership(word);
+      mq++;
       row.push(result);
       yield log(
         `The result of MQ(${JSON.stringify(state)} + ${JSON.stringify(separator)}) is ${result}.`,
@@ -108,6 +120,7 @@ export const learn = function* (params: Params): Generator<Log, Automaton> {
       const row = table.extensions.get(extension)!;
       const word = extension + separator;
       const result = teacher.membership(word);
+      mq++;
       row.push(result);
       yield log(
         `The result of MQ(${JSON.stringify(extension)} + ${JSON.stringify(separator)}) is ${result}.`,
@@ -131,6 +144,7 @@ export const learn = function* (params: Params): Generator<Log, Automaton> {
     for (const separator of table.separators) {
       const word = extension + separator;
       const result = teacher.membership(word);
+      mq++;
       row.push(result);
       yield log(
         `The result of MQ(${JSON.stringify(extension)} + ${JSON.stringify(separator)}) is ${result}.`,
@@ -290,6 +304,7 @@ export const learn = function* (params: Params): Generator<Log, Automaton> {
       hypothesis,
     );
     const counterexample = teacher.equivalence(hypothesis);
+    eq++;
 
     if (counterexample === true) {
       yield log(
@@ -338,6 +353,7 @@ export const learn = function* (params: Params): Generator<Log, Automaton> {
         // and then adds it to the observation table.
 
         const expected = teacher.membership(counterexample);
+        mq++;
         let low = 0;
         let high = counterexample.length;
         while (high - low > 1) {
@@ -347,6 +363,7 @@ export const learn = function* (params: Params): Generator<Log, Automaton> {
           const statePrefix = numberToStatePrefix.get(stateNumber)!;
           const suffix = counterexample.slice(mid, counterexample.length);
           const result = teacher.membership(statePrefix + suffix);
+          mq++;
 
           if (result === expected) {
             low = mid;
