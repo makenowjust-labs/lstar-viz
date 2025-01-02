@@ -3,6 +3,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import { Graphviz, graphviz } from "d3-graphviz";
 
+import {
+  PlayIcon,
+  ResumeIcon,
+  GearIcon,
+  StopIcon,
+  CheckIcon,
+  Cross2Icon,
+} from "@radix-ui/react-icons";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,6 +22,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
@@ -25,28 +35,44 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-import { learn, Log, ObservationTable, Teacher } from "@/lib/lstar";
 import { Automaton, diff, parseDOT, run, toDOT } from "@/lib/automaton";
+import {
+  CexProcessMethod,
+  learn,
+  Log,
+  ObservationTable,
+  Teacher,
+} from "@/lib/lstar";
 import { presets, defaultTargetDOT } from "@/lib/presets";
+
+type Speed = "slow" | "fast" | "quick";
 
 type ControlPanelProps = {
   isRunning: boolean;
   targetDOT: string;
+  cexProcessMethod: CexProcessMethod;
+  speed: Speed;
   onStart: () => void;
   onStop: () => void;
   onNext: () => void;
   onUpdateTargetDOT: (dot: string) => void;
   onReset: () => void;
+  onUpdateCexProcessMethod: (method: CexProcessMethod) => void;
+  onUpdateSpeed: (speed: Speed) => void;
 };
 
 function ControlPanel({
   isRunning,
   targetDOT,
+  cexProcessMethod,
+  speed,
   onStart,
   onStop,
   onNext,
   onUpdateTargetDOT,
   onReset,
+  onUpdateCexProcessMethod,
+  onUpdateSpeed,
 }: ControlPanelProps) {
   const [open, setOpen] = useState(false);
 
@@ -57,9 +83,10 @@ function ControlPanel({
     [onUpdateTargetDOT],
   );
   const onResetAndRestart = useCallback(() => {
+    onStop();
     onReset();
-    setOpen(() => false);
-  }, [onReset]);
+    setOpen(false);
+  }, [onStop, onReset]);
 
   const onSelectPreset = useCallback(
     (value: string) => {
@@ -68,18 +95,32 @@ function ControlPanel({
     [onUpdateTargetDOT],
   );
 
+  const onSelectCexProcessMethod = useCallback(
+    (value: string) => {
+      onUpdateCexProcessMethod(value as CexProcessMethod);
+    },
+    [onUpdateCexProcessMethod],
+  );
+
+  const onSelectSpeed = useCallback(
+    (value: string) => {
+      onUpdateSpeed(value as Speed);
+    },
+    [onUpdateSpeed],
+  );
+
   return (
     <div className="flex h-16 pt-4">
-      <Button className="w-24" onClick={isRunning ? onStop : onStart}>
-        {isRunning ? "Stop" : "Start"}
+      <Button className="w-12" onClick={isRunning ? onStop : onStart}>
+        {isRunning ? <StopIcon /> : <PlayIcon />}
       </Button>
-      <Button className="w-24 ml-2" onClick={onNext} disabled={isRunning}>
-        Next
+      <Button className="w-12 ml-2" onClick={onNext} disabled={isRunning}>
+        <ResumeIcon />
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button className="w-24 ml-2" variant="secondary">
-            Config
+          <Button className="w-12 ml-2" variant="secondary">
+            <GearIcon />
           </Button>
         </DialogTrigger>
         <DialogContent>
@@ -90,7 +131,10 @@ function ControlPanel({
             </DialogDescription>
           </DialogHeader>
           <div>
-            <div className="my-2">
+            <div>
+              <Label htmlFor="automaton">Target Automaton</Label>
+            </div>
+            <div className="mt-2">
               <Select onValueChange={onSelectPreset}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Choose a preset automaton" />
@@ -109,13 +153,57 @@ function ControlPanel({
                 </SelectContent>
               </Select>
             </div>
-            <Textarea
-              onChange={onChangeTextarea}
-              placeholder="Graphviz DOT"
-              rows={10}
-              className="font-mono"
-              value={targetDOT}
-            />
+            <div className="mt-2">
+              <Textarea
+                id="automaton"
+                onChange={onChangeTextarea}
+                placeholder="Graphviz DOT"
+                rows={10}
+                className="font-mono"
+                value={targetDOT}
+              />
+            </div>
+            <div className="mt-2">
+              <Label>Counterexample Processing Method</Label>
+            </div>
+            <div className="mt-2">
+              <Select
+                value={cexProcessMethod}
+                onValueChange={onSelectCexProcessMethod}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Choose a counterexample processing method" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Counterexample Processing Method</SelectLabel>
+                    <SelectItem value="rivest-schapire">
+                      Rivest-Schapire
+                    </SelectItem>
+                    <SelectItem value="angluin">Angluin</SelectItem>
+                    <SelectItem value="maler-pnueli">Maler-Pnueli</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="mt-2">
+              <Label>Speed</Label>
+            </div>
+            <div className="mt-2">
+              <Select value={speed} onValueChange={onSelectSpeed}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Choose a speed" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Speed</SelectLabel>
+                    <SelectItem value="slow">Slow</SelectItem>
+                    <SelectItem value="fast">Fast</SelectItem>
+                    <SelectItem value="quick">Quick</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <DialogFooter>
             <Button onClick={onResetAndRestart}>Reset & Restart</Button>
@@ -128,9 +216,10 @@ function ControlPanel({
 
 type AutomatonViewProps = {
   dot: string;
+  speed: Speed;
 };
 
-function AutomatonView({ dot }: AutomatonViewProps) {
+function AutomatonView({ dot, speed }: AutomatonViewProps) {
   const automaton = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const viz = useRef<Graphviz<any, any, any, any>>();
@@ -146,10 +235,12 @@ function AutomatonView({ dot }: AutomatonViewProps) {
     }
 
     viz.current = graphviz(automaton.current, { useWorker: false })
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .transition(() => d3.transition().duration(500) as any)
+      .transition(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        () => d3.transition().duration(speed === "slow" ? 1000 : 500) as any,
+      )
       .renderDot(dot);
-  }, [dot]);
+  }, [dot, speed]);
 
   return (
     <ScrollArea className="w-1/2 h-[calc(100vh-19rem)]">
@@ -198,7 +289,11 @@ function ObservationTableView({ table }: ObservationTableViewProps) {
                     key={index}
                     className={`text-center ${value ? "bg-green-500" : "bg-red-500"}`}
                   >
-                    {value ? "✓" : "×"}
+                    {value ? (
+                      <CheckIcon className="inline-block" />
+                    ) : (
+                      <Cross2Icon className="inline-block" />
+                    )}
                   </td>
                 ))}
               </tr>
@@ -216,7 +311,11 @@ function ObservationTableView({ table }: ObservationTableViewProps) {
                     key={index}
                     className={`text-center ${value ? "bg-green-500" : "bg-red-500"}`}
                   >
-                    {value ? "✓" : "×"}
+                    {value ? (
+                      <CheckIcon className="inline-block" />
+                    ) : (
+                      <Cross2Icon className="inline-block" />
+                    )}
                   </td>
                 ))}
               </tr>
@@ -228,8 +327,19 @@ function ObservationTableView({ table }: ObservationTableViewProps) {
   );
 }
 
+type LogData = {
+  level: "info" | "debug" | "error";
+  message: string;
+};
+
+const levelToColor = {
+  info: "bg-green-200",
+  debug: "bg-white",
+  error: "bg-red-200",
+};
+
 type LogViewProps = {
-  logs: string[];
+  logs: LogData[];
 };
 
 function LogView({ logs }: LogViewProps) {
@@ -247,13 +357,13 @@ function LogView({ logs }: LogViewProps) {
     <ScrollArea className="w-full pt-2 h-[9.5rem]">
       <h2 className="ml-2 text-lg font-bold sticky top-0 bg-white">Log</h2>
       <div className="ml-2 text-sm">
-        {logs.map((log, index) => (
+        {logs.map(({ message, level }, index) => (
           <div
             key={index}
-            className="my-1"
+            className={`my-1 ${levelToColor[level]}`}
             {...(index === logs.length - 1 ? { ref: lastLog } : {})}
           >
-            {log}
+            {message}
           </div>
         ))}
       </div>
@@ -265,9 +375,13 @@ export function Main() {
   const [targetDOT, setTargetDOT] = useState(defaultTargetDOT);
   const [isRunning, setIsRunning] = useState(false);
 
+  const [cexProcessMethod, setCexProcessMethod] =
+    useState<CexProcessMethod>("rivest-schapire");
+  const [speed, setSpeed] = useState<Speed>("fast");
+
   const [hypothesis, setHypothesis] = useState<Automaton | null>(null);
   const [table, setTable] = useState<ObservationTable | null>(null);
-  const [logs, setLogs] = useState<string[]>([]);
+  const [logs, setLogs] = useState<LogData[]>([]);
 
   const gen = useRef<Generator<Log, Automaton> | null>(null);
   const timerId = useRef<number | null>(null);
@@ -282,11 +396,10 @@ export function Main() {
   }, []);
 
   const onReset = useCallback(() => {
-    onStop();
     gen.current = null;
-    setHypothesis(() => null);
-    setTable(() => null);
-    setLogs(() => []);
+    setHypothesis(null);
+    setTable(null);
+    setLogs([]);
 
     try {
       const target = parseDOT(targetDOT);
@@ -295,54 +408,75 @@ export function Main() {
         membership: (word) => target.accepts.includes(run(target, word)),
         equivalence: (hypothesis) => diff(target, hypothesis),
       };
-      gen.current = learn({ teacher, cexProcessMethod: "rivest-schapire" });
+      gen.current = learn({ teacher, cexProcessMethod });
     } catch (error) {
       setLogs((logs) =>
         logs.concat([
-          `Error on parsing DOT: ${error instanceof Error ? error.message : error}`,
+          {
+            message: `Error on parsing DOT: ${error instanceof Error ? error.message : error}`,
+            level: "error",
+          },
         ]),
       );
     }
-  }, [targetDOT, onStop]);
+  }, [targetDOT, cexProcessMethod]);
 
   const onNext = useCallback(() => {
-    if (gen.current === null) {
-      return;
-    }
-
-    try {
-      const { value, done } = gen.current.next();
-      if (done) {
-        setHypothesis(() => value as Automaton);
-        onStop();
-        gen.current = null;
-        return;
-      }
-
-      const { message, table, hypothesis } = value as Log;
-      setLogs((logs) => [...logs, message]);
-      setTable(() => table);
-      if (hypothesis !== undefined) {
-        setHypothesis(() => hypothesis);
-      }
-    } catch (error) {
-      setLogs((logs) =>
-        logs.concat([
-          `Error on learning: ${error instanceof Error ? error.message : error}`,
-        ]),
-      );
-      gen.current = null;
-    }
-  }, [onStop]);
-
-  const onStart = useCallback(() => {
     if (gen.current === null) {
       onReset();
     }
 
-    timerId.current = window.setInterval(onNext, 100);
+    // Still, `gen.current` is `null`, then some errors occured and `onNext` is cancelled.
+    if (gen.current === null) {
+      onStop();
+      return;
+    }
+
+    try {
+      let { value, done } = gen.current.next();
+      while (true) {
+        if (done) {
+          setHypothesis(() => value as Automaton);
+          onStop();
+          gen.current = null;
+          return;
+        }
+
+        const { message, table, important, hypothesis } = value as Log;
+        setLogs((logs) => [
+          ...logs,
+          { message, level: important ? "info" : "debug" },
+        ]);
+        setTable(() => table);
+        if (hypothesis !== undefined) {
+          setHypothesis(() => hypothesis);
+        }
+
+        if (speed === "quick" && !important) {
+          ({ value, done } = gen.current.next());
+          continue;
+        }
+
+        break;
+      }
+    } catch (error) {
+      setLogs((logs) =>
+        logs.concat([
+          {
+            message: `Error on learning: ${error instanceof Error ? error.message : error}`,
+            level: "error",
+          },
+        ]),
+      );
+      onStop();
+      gen.current = null;
+    }
+  }, [onStop, onReset, speed]);
+
+  const onStart = useCallback(() => {
+    timerId.current = window.setInterval(onNext, speed === "slow" ? 250 : 100);
     setIsRunning(() => true);
-  }, [onNext, onReset]);
+  }, [onNext, speed]);
 
   const onUpdateTargetDOT = useCallback((dot: string) => {
     setTargetDOT(() => dot);
@@ -361,14 +495,21 @@ export function Main() {
       <ControlPanel
         isRunning={isRunning}
         targetDOT={targetDOT}
+        cexProcessMethod={cexProcessMethod}
+        speed={speed}
         onStart={onStart}
         onStop={onStop}
         onNext={onNext}
         onUpdateTargetDOT={onUpdateTargetDOT}
         onReset={onReset}
+        onUpdateCexProcessMethod={setCexProcessMethod}
+        onUpdateSpeed={setSpeed}
       />
       <div className="flex mt-4 border-b-4">
-        <AutomatonView dot={hypothesis ? toDOT(hypothesis) : ""} />
+        <AutomatonView
+          dot={hypothesis ? toDOT(hypothesis) : ""}
+          speed={speed}
+        />
         <div className="w-1 h-[calc(100vh-19rem)] bg-gray-200"></div>
         <ObservationTableView table={table} />
       </div>

@@ -14,6 +14,7 @@ export type ObservationTable = {
 
 export type Log = {
   message: string;
+  important: boolean;
   table: Readonly<ObservationTable>;
   hypothesis?: Automaton;
 };
@@ -36,6 +37,7 @@ export const learn = function* (params: Params): Generator<Log, Automaton> {
 
   const log = (
     message: string,
+    important: boolean = false,
     hypothesis: Automaton | undefined = undefined,
   ): Log => ({
     message,
@@ -44,6 +46,7 @@ export const learn = function* (params: Params): Generator<Log, Automaton> {
       states: new Map(table.states),
       extensions: new Map(table.extensions),
     }),
+    important,
     hypothesis,
   });
 
@@ -58,6 +61,7 @@ export const learn = function* (params: Params): Generator<Log, Automaton> {
     table.states.set(state, row);
     yield log(
       `A state prefix ${JSON.stringify(state)} is added to the observation table.`,
+      true,
     );
 
     for (const separator of table.separators) {
@@ -87,6 +91,7 @@ export const learn = function* (params: Params): Generator<Log, Automaton> {
     table.separators.push(separator);
     yield log(
       `A separator ${JSON.stringify(separator)} is added to the observation table.`,
+      true,
     );
 
     for (const state of table.states.keys()) {
@@ -150,6 +155,7 @@ export const learn = function* (params: Params): Generator<Log, Automaton> {
     table.states.set(extension, row);
     yield log(
       `The extension prefix ${JSON.stringify(extension)} is promoted to a state prefix.`,
+      true,
     );
 
     for (const char of teacher.alphabet) {
@@ -278,17 +284,25 @@ export const learn = function* (params: Params): Generator<Log, Automaton> {
     }
 
     const [hypothesis, numberToStatePrefix] = makeHypothesis();
-    yield log("The observation table is closed and consistent.", hypothesis);
+    yield log(
+      "The observation table is closed and consistent. Let's check equivalence.",
+      true,
+      hypothesis,
+    );
     const counterexample = teacher.equivalence(hypothesis);
 
     if (counterexample === true) {
       yield log(
         "The hypothesis is equivalent to the target automaton. Learning is done.",
+        true,
       );
       return hypothesis;
     }
 
-    yield log(`A counterexample ${JSON.stringify(counterexample)} is found.`);
+    yield log(
+      `A counterexample ${JSON.stringify(counterexample)} is found.`,
+      true,
+    );
 
     switch (cexProcessMethod) {
       case "angluin":
