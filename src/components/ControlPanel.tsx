@@ -12,7 +12,7 @@ import {
 	DialogDescription,
 } from "@/components/ui/dialog";
 import { StopIcon, ResumeIcon, GearIcon } from "@radix-ui/react-icons";
-import { Label } from "@radix-ui/react-label";
+import { Label } from "@/components/ui/label";
 import {
 	Select,
 	SelectTrigger,
