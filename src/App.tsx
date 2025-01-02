@@ -1,21 +1,543 @@
+import { useEffect, useRef } from "react";
+
+import * as d3 from "d3";
+import { Graphviz, graphviz } from "d3-graphviz";
+
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
 function App() {
   return (
     <>
-      <header className="block h-11 border-b border-gray-200 mt-4 mb-4">
-        <h1 className="text-3xl font-bold ml-4 text-primary">
-          Angluin's L* Algorithm Visualization
-          <small className="ml-2 font-normal">
-            made by{" "}
-            <a
-              className="font-medium underline underline-offset-4"
-              href="https://github.com/makenowjust"
-            >
-              @makenowjust
-            </a>
-          </small>
-        </h1>
-      </header>
+      <Header />
+      <Main />
     </>
+  );
+}
+
+function Header() {
+  return (
+    <header className="block h-11 border-b border-gray-200 my-4">
+      <h1 className="text-3xl font-bold ml-4 text-primary">
+        Angluin's L* Algorithm Visualization
+        <small className="ml-2 font-normal">
+          made by{" "}
+          <a
+            className="font-medium underline underline-offset-4"
+            href="https://github.com/makenowjust"
+          >
+            @makenowjust
+          </a>
+        </small>
+      </h1>
+    </header>
+  );
+}
+
+function Main() {
+  const automaton = useRef<HTMLDivElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const viz = useRef<Graphviz<any, any, any, any>>();
+
+  useEffect(() => {
+    if (automaton.current === null) {
+      return;
+    }
+
+    viz.current = graphviz(automaton.current, { useWorker: false })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .transition(() => d3.transition().duration(500) as any)
+      .renderDot("digraph {a -> b}");
+  });
+
+  return (
+    <main className="block px-4 w-screen">
+      <div className="flex mt-4">
+        <Button className="w-24">Start</Button>
+        <Button className="w-24 ml-2">Next</Button>
+        <Button className="w-24 ml-2" variant="secondary">
+          Config
+        </Button>
+      </div>
+      <div className="flex mt-4 border-b-4">
+        <ScrollArea className="w-1/2 h-[calc(100vh-25rem)]">
+          <h2 className="ml-2 text-lg font-bold">Automaton</h2>
+          <div
+            ref={automaton}
+            className="absolute top-[1.75rem] bottom-0 left-0 right-0 [&>svg]:h-full [&>svg]:w-full"
+          />
+        </ScrollArea>
+        <div className="w-1 h-[calc(100vh-25rem)] bg-gray-200"></div>
+        <ScrollArea className="w-1/2 h-[calc(100vh-25rem)]">
+          <h2 className="ml-2 text-lg font-bold">Observation table</h2>
+          <table className="overflow-x-auto w-full text-sm relative">
+            <thead className="sticky top-0 text-gray-700 bg-gray-50 table-fixed text-center">
+              <tr className="my-2">
+                <th></th>
+                <th scope="col">""</th>
+                <th scope="col">"a"</th>
+                <th scope="col">"b"</th>
+                <th scope="col">"ab"</th>
+                <th scope="col">"abc"</th>
+                <th scope="col">"cba"</th>
+                <th scope="col">"cba"</th>
+                <th scope="col">"cba"</th>
+                <th scope="col">"cba"</th>
+                <th scope="col">"cba"</th>
+                <th scope="col">"cba"</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b my-2">
+                <th scope="row">""</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="border-b my-2">
+                <th scope="row">"a"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+              <tr className="my-2">
+                <th scope="row">"b"</th>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center"></td>
+                <td className="text-center">✓</td>
+                <td className="text-center">✓</td>
+              </tr>
+            </tbody>
+          </table>
+        </ScrollArea>
+      </div>
+      <div className="w-full mt-2">
+        <h2 className="ml-2 text-lg font-bold">Log</h2>
+        <ScrollArea className="mx-4 mt-2 w-full h-[calc(10rem)]">
+          <div>log line...</div>
+          <div>log line...</div>
+          <div>log line...</div>
+          <div>log line...</div>
+          <div>log line...</div>
+          <div>log line...</div>
+          <div>log line...</div>
+          <div>log line...</div>
+          <div>log line...</div>
+          <div>log line...</div>
+          <div>log line...</div>
+          <div>log line...</div>
+          <div>log line...</div>
+          <div>log line...</div>
+          <div>log line...</div>
+          <div>log line...</div>
+          <div>log line...</div>
+        </ScrollArea>
+      </div>
+    </main>
   );
 }
 
