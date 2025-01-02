@@ -1,5 +1,5 @@
 import type { LogData } from "@/types";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useRef, useEffect } from "react";
 
 const levelToColor = {
