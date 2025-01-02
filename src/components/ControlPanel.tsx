@@ -10,7 +10,7 @@ import {
 	DialogContent,
 	DialogTitle,
 	DialogDescription,
-} from "@radix-ui/react-dialog";
+} from "@/components/ui/dialog";
 import { StopIcon, ResumeIcon, GearIcon } from "@radix-ui/react-icons";
 import { Label } from "@radix-ui/react-label";
 import {
