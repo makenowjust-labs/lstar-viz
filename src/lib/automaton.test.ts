@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { parseDOT, toDOT, diff, run } from "@/lib/automaton";
+import { diff, parseDOT, run, toDOT } from "@/lib/automaton";
 
 const exampleDOT = `
   digraph g {

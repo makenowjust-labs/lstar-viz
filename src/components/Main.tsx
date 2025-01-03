@@ -4,23 +4,23 @@ import * as d3 from "d3";
 import { Graphviz, graphviz } from "d3-graphviz";
 
 import {
-  PlayIcon,
-  ResumeIcon,
-  GearIcon,
-  StopIcon,
   CheckIcon,
   Cross2Icon,
+  GearIcon,
+  PlayIcon,
+  ResumeIcon,
+  StopIcon,
 } from "@radix-ui/react-icons";
 
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogHeader,
-  DialogTrigger,
   DialogContent,
   DialogDescription,
-  DialogTitle,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -38,13 +38,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Automaton, diff, parseDOT, run, toDOT } from "@/lib/automaton";
 import {
   CexProcessMethod,
-  learn,
   Log,
   ObservationTable,
   Stat,
   Teacher,
+  learn,
 } from "@/lib/lstar";
-import { presets, defaultTargetDOT } from "@/lib/presets";
+import { defaultTargetDOT, presets } from "@/lib/presets";
 
 type Speed = "slow" | "fast" | "quick";
 
