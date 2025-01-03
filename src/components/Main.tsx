@@ -1,16 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import * as d3 from "d3";
-import { Graphviz, graphviz } from "d3-graphviz";
+import { type Graphviz, graphviz } from "d3-graphviz";
 
-import {
-  CheckIcon,
-  Cross2Icon,
-  GearIcon,
-  PlayIcon,
-  ResumeIcon,
-  StopIcon,
-} from "@radix-ui/react-icons";
+import { CheckIcon, Cross2Icon, GearIcon, PlayIcon, ResumeIcon, StopIcon } from "@radix-ui/react-icons";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -35,15 +28,8 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-import { Automaton, diff, parseDOT, run, toDOT } from "@/lib/automaton";
-import {
-  CexProcessMethod,
-  Log,
-  ObservationTable,
-  Stat,
-  Teacher,
-  learn,
-} from "@/lib/lstar";
+import { type Automaton, diff, parseDOT, run, toDOT } from "@/lib/automaton";
+import { type CexProcessMethod, type Log, type ObservationTable, type Stat, type Teacher, learn } from "@/lib/lstar";
 import { defaultTargetDOT, presets } from "@/lib/presets";
 
 type Speed = "slow" | "fast" | "quick";
@@ -115,21 +101,19 @@ function ControlPanel({
       <Button className="w-12" onClick={isRunning ? onStop : onStart}>
         {isRunning ? <StopIcon /> : <PlayIcon />}
       </Button>
-      <Button className="w-12 ml-2" onClick={onNext} disabled={isRunning}>
+      <Button className="ml-2 w-12" onClick={onNext} disabled={isRunning}>
         <ResumeIcon />
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button className="w-12 ml-2" variant="secondary">
+          <Button className="ml-2 w-12" variant="secondary">
             <GearIcon />
           </Button>
         </DialogTrigger>
         <DialogContent className="max-h-full overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Configuration</DialogTitle>
-            <DialogDescription>
-              Configure the target automaton and learning parameters.
-            </DialogDescription>
+            <DialogDescription>Configure the target automaton and learning parameters.</DialogDescription>
           </DialogHeader>
           <div>
             <div>
@@ -145,6 +129,7 @@ function ControlPanel({
                     <SelectLabel>Automaton</SelectLabel>
                     {presets.map((preset, index) => {
                       return (
+                        // biome-ignore lint/suspicious/noArrayIndexKey:
                         <SelectItem key={index} value={String(index)}>
                           {preset.name}
                         </SelectItem>
@@ -168,19 +153,14 @@ function ControlPanel({
               <Label>Counterexample Processing Method</Label>
             </div>
             <div className="mt-2">
-              <Select
-                value={cexProcessMethod}
-                onValueChange={onSelectCexProcessMethod}
-              >
+              <Select value={cexProcessMethod} onValueChange={onSelectCexProcessMethod}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Choose a counterexample processing method" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Counterexample Processing Method</SelectLabel>
-                    <SelectItem value="rivest-schapire">
-                      Rivest-Schapire
-                    </SelectItem>
+                    <SelectItem value="rivest-schapire">Rivest-Schapire</SelectItem>
                     <SelectItem value="angluin">Angluin</SelectItem>
                     <SelectItem value="maler-pnueli">Maler-Pnueli</SelectItem>
                   </SelectGroup>
@@ -222,7 +202,7 @@ type AutomatonViewProps = {
 
 function AutomatonView({ dot, speed }: AutomatonViewProps) {
   const automaton = useRef<HTMLDivElement>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny:
   const viz = useRef<Graphviz<any, any, any, any>>();
 
   useEffect(() => {
@@ -236,20 +216,15 @@ function AutomatonView({ dot, speed }: AutomatonViewProps) {
     }
 
     viz.current = graphviz(automaton.current, { useWorker: false })
-      .transition(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        () => d3.transition().duration(speed === "slow" ? 1000 : 500) as any,
-      )
+      // biome-ignore lint/suspicious/noExplicitAny:
+      .transition(() => d3.transition().duration(speed === "slow" ? 1000 : 500) as any)
       .renderDot(dot);
   }, [dot, speed]);
 
   return (
-    <ScrollArea className="w-1/2 h-[calc(100vh-19rem)]">
-      <h2 className="ml-2 text-lg font-bold">Automaton</h2>
-      <div
-        ref={automaton}
-        className="absolute top-[1.75rem] bottom-0 left-0 right-0 [&>svg]:h-full [&>svg]:w-full"
-      />
+    <ScrollArea className="h-[calc(100vh-19rem)] w-1/2">
+      <h2 className="ml-2 font-bold text-lg">Automaton</h2>
+      <div ref={automaton} className="absolute top-[1.75rem] right-0 bottom-0 left-0 [&>svg]:h-full [&>svg]:w-full" />
     </ScrollArea>
   );
 }
@@ -264,12 +239,12 @@ function ObservationTableView({ table }: ObservationTableViewProps) {
   const extensions = table?.extensions ?? new Map<string, boolean[]>();
 
   return (
-    <ScrollArea className="w-1/2 h-[calc(100vh-19rem)]">
-      <h2 className="ml-2 text-lg font-bold">Observation table</h2>
-      <table className="ml-2 overflow-x-auto w-full text-sm relative table-fixed">
-        <thead className="sticky top-0 text-gray-700 bg-gray-50 text-center">
+    <ScrollArea className="h-[calc(100vh-19rem)] w-1/2">
+      <h2 className="ml-2 font-bold text-lg">Observation table</h2>
+      <table className="relative ml-2 w-full table-fixed overflow-x-auto text-sm">
+        <thead className="sticky top-0 bg-gray-50 text-center text-gray-700">
           <tr className="my-2">
-            <th></th>
+            <th />
             {separators.map((separator) => (
               <th key={separator} scope="col">
                 {JSON.stringify(separator)}
@@ -282,19 +257,13 @@ function ObservationTableView({ table }: ObservationTableViewProps) {
             return (
               <tr
                 key={state}
-                className={`my-2${index < states.size - 1 ? " border-b" : " border-b-2 border-gray-900"}`}
+                className={`my-2${index < states.size - 1 ? " border-b" : " border-gray-900 border-b-2"}`}
               >
                 <th scope="row">{JSON.stringify(state)}</th>
                 {row.map((value, index) => (
-                  <td
-                    key={index}
-                    className={`text-center ${value ? "bg-green-500" : "bg-red-500"}`}
-                  >
-                    {value ? (
-                      <CheckIcon className="inline-block" />
-                    ) : (
-                      <Cross2Icon className="inline-block" />
-                    )}
+                  // biome-ignore lint/suspicious/noArrayIndexKey:
+                  <td key={index} className={`text-center ${value ? "bg-green-500" : "bg-red-500"}`}>
+                    {value ? <CheckIcon className="inline-block" /> : <Cross2Icon className="inline-block" />}
                   </td>
                 ))}
               </tr>
@@ -302,21 +271,12 @@ function ObservationTableView({ table }: ObservationTableViewProps) {
           })}
           {Array.from(extensions).map(([extension, row], index) => {
             return (
-              <tr
-                key={extension}
-                className={`my-2${index < extensions.size - 1 ? " border-b" : ""}`}
-              >
+              <tr key={extension} className={`my-2${index < extensions.size - 1 ? " border-b" : ""}`}>
                 <th scope="row">{JSON.stringify(extension)}</th>
                 {row.map((value, index) => (
-                  <td
-                    key={index}
-                    className={`text-center ${value ? "bg-green-500" : "bg-red-500"}`}
-                  >
-                    {value ? (
-                      <CheckIcon className="inline-block" />
-                    ) : (
-                      <Cross2Icon className="inline-block" />
-                    )}
+                  // biome-ignore lint/suspicious/noArrayIndexKey:
+                  <td key={index} className={`text-center ${value ? "bg-green-500" : "bg-red-500"}`}>
+                    {value ? <CheckIcon className="inline-block" /> : <Cross2Icon className="inline-block" />}
                   </td>
                 ))}
               </tr>
@@ -347,6 +307,7 @@ type LogViewProps = {
 function LogView({ logs }: LogViewProps) {
   const lastLog = useRef<HTMLDivElement>(null);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies:
   useEffect(() => {
     if (lastLog.current === null) {
       return;
@@ -356,11 +317,12 @@ function LogView({ logs }: LogViewProps) {
   }, [logs]);
 
   return (
-    <ScrollArea className="w-full pt-2 h-[9.5rem]">
-      <h2 className="ml-2 text-lg font-bold sticky top-0 bg-white">Log</h2>
+    <ScrollArea className="h-[9.5rem] w-full pt-2">
+      <h2 className="sticky top-0 ml-2 bg-white font-bold text-lg">Log</h2>
       <div className="ml-2 text-sm">
         {logs.map(({ message, level, stat }, index) => (
           <div
+            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
             key={index}
             className={`my-1 ${levelToColor[level]}`}
             {...(index === logs.length - 1 ? { ref: lastLog } : {})}
@@ -378,8 +340,7 @@ export function Main() {
   const [targetDOT, setTargetDOT] = useState(defaultTargetDOT);
   const [isRunning, setIsRunning] = useState(false);
 
-  const [cexProcessMethod, setCexProcessMethod] =
-    useState<CexProcessMethod>("rivest-schapire");
+  const [cexProcessMethod, setCexProcessMethod] = useState<CexProcessMethod>("rivest-schapire");
   const [speed, setSpeed] = useState<Speed>("fast");
 
   const [hypothesis, setHypothesis] = useState<Automaton | null>(null);
@@ -446,10 +407,7 @@ export function Main() {
         }
 
         const { message, table, important, hypothesis, stat } = value as Log;
-        setLogs((logs) => [
-          ...logs,
-          { message, level: important ? "info" : "debug", stat },
-        ]);
+        setLogs((logs) => [...logs, { message, level: important ? "info" : "debug", stat }]);
         setTable(() => table);
         if (hypothesis !== undefined) {
           setHypothesis(() => hypothesis);
@@ -494,7 +452,7 @@ export function Main() {
   }, [onReset, onStop]);
 
   return (
-    <main className="block px-4 w-screen">
+    <main className="block w-screen px-4">
       <ControlPanel
         isRunning={isRunning}
         targetDOT={targetDOT}
@@ -508,12 +466,9 @@ export function Main() {
         onUpdateCexProcessMethod={setCexProcessMethod}
         onUpdateSpeed={setSpeed}
       />
-      <div className="flex mt-4 border-b-4">
-        <AutomatonView
-          dot={hypothesis ? toDOT(hypothesis) : ""}
-          speed={speed}
-        />
-        <div className="w-1 h-[calc(100vh-19rem)] bg-gray-200"></div>
+      <div className="mt-4 flex border-b-4">
+        <AutomatonView dot={hypothesis ? toDOT(hypothesis) : ""} speed={speed} />
+        <div className="h-[calc(100vh-19rem)] w-1 bg-gray-200" />
         <ObservationTableView table={table} />
       </div>
       <LogView logs={logs} />

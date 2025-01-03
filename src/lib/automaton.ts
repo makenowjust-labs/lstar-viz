@@ -6,25 +6,24 @@ export type Automaton = {
   readonly accepts: readonly number[];
 };
 
-export const run = (
-  automaton: Automaton,
-  word: string,
-  state: number = automaton.start,
-): number => {
+export const run = (automaton: Automaton, word: string, state: number = automaton.start): number => {
+  let q: number | undefined = state;
   for (let i = 0; i < word.length; i++) {
     const char = word[i];
-    state = automaton.transitions.get(state)!.get(char)!;
+
+    q = automaton.transitions.get(q)?.get(char);
+    if (q === undefined) {
+      throw new Error(`No transition for state ${state} and char ${char}`);
+    }
   }
 
-  return state;
+  return q;
 };
 
-export const diff = (
-  automaton1: Automaton,
-  automaton2: Automaton,
-): true | string => {
-  const encode = (state1: number, state2: number): string =>
-    `${state1},${state2}`;
+export const diff = (automaton1: Automaton, automaton2: Automaton): true | string => {
+  // NOTE: This function assumes that the alphabets of the two automata are the same.
+
+  const encode = (state1: number, state2: number): string => `${state1},${state2}`;
 
   const queue: [number, number, string][] = [];
   const visited = new Set<string>();
@@ -33,17 +32,18 @@ export const diff = (
   visited.add(encode(automaton1.start, automaton2.start));
 
   while (queue.length > 0) {
+    // biome-ignore lint/style/noNonNullAssertion:
     const [state1, state2, word] = queue.shift()!;
-    if (
-      automaton1.accepts.includes(state1) !==
-      automaton2.accepts.includes(state2)
-    ) {
+    if (automaton1.accepts.includes(state1) !== automaton2.accepts.includes(state2)) {
       return word;
     }
 
     for (const char of automaton1.alphabet) {
-      const nextState1 = automaton1.transitions.get(state1)!.get(char)!;
-      const nextState2 = automaton2.transitions.get(state2)!.get(char)!;
+      const nextState1 = automaton1.transitions.get(state1)?.get(char);
+      const nextState2 = automaton2.transitions.get(state2)?.get(char);
+      if (nextState1 === undefined || nextState2 === undefined) {
+        throw new Error(`No transition for char ${char}`);
+      }
 
       const nextWord = word + char;
       const nextEncoded = encode(nextState1, nextState2);
@@ -60,8 +60,7 @@ export const diff = (
 
 const commentRe = /\/\*(?:(?!\*\/).)*\*\/|\/\/.*|^\s*#.*/;
 const startRe = /\b__start0(?:_\w+)?\s*->\s*(?<start_name>\w+)/;
-const transitionRe =
-  /\b(?<from_name>\w+)\s*->\s*(?<to_name>\w+)\s*\[(?<params>(?:"[^"]*"|[^\]]+)*)\]/;
+const transitionRe = /\b(?<from_name>\w+)\s*->\s*(?<to_name>\w+)\s*\[(?<params>(?:"[^"]*"|[^\]]+)*)\]/;
 const stateRe = /\b(?<name>\w+)\s*\[(?<params>(?:"[^"]*"|[^\]]+)*)\]/;
 const labelRe = /\blabel=(?<value>"[^"]*"|[^\s\],]*)/;
 const shapeRe = /\bshape=(?<value>"[^"]*"|[^\s\],]*)/;
@@ -77,17 +76,14 @@ export const parseDOT = (dot: string): Automaton => {
     return state;
   };
 
-  const strip = (value: string) =>
-    value[0] === '"' && value[value.length - 1] === '"'
-      ? value.slice(1, -1)
-      : value;
+  const strip = (value: string) => (value[0] === '"' && value[value.length - 1] === '"' ? value.slice(1, -1) : value);
 
   const extract = (re: RegExp, params: string): string => {
     const match = params.match(re);
     if (match === null) {
       return "";
     }
-    return strip(match.groups!["value"]);
+    return strip(match.groups?.value ?? "");
   };
 
   let start = 0;
@@ -102,7 +98,7 @@ export const parseDOT = (dot: string): Automaton => {
   for (const line of lines) {
     const startMatch = line.match(startRe);
     if (startMatch !== null) {
-      const startName = startMatch.groups!["start_name"];
+      const startName = startMatch.groups?.start_name ?? "";
       start = nameToState(startName);
 
       continue;
@@ -110,12 +106,12 @@ export const parseDOT = (dot: string): Automaton => {
 
     const transitionMatch = line.match(transitionRe);
     if (transitionMatch !== null) {
-      const fromName = transitionMatch.groups!["from_name"];
-      const toName = transitionMatch.groups!["to_name"];
+      const fromName = transitionMatch.groups?.from_name ?? "";
+      const toName = transitionMatch.groups?.to_name ?? "";
       const from = nameToState(fromName);
       const to = nameToState(toName);
 
-      const params = transitionMatch.groups!["params"];
+      const params = transitionMatch.groups?.params ?? "";
       const char = extract(labelRe, params);
 
       let successors = transitions.get(from);
@@ -130,14 +126,14 @@ export const parseDOT = (dot: string): Automaton => {
 
     const stateMatch = line.match(stateRe);
     if (stateMatch !== null) {
-      const name = stateMatch.groups!["name"];
+      const name = stateMatch.groups?.name ?? "";
       if (name === "__start0") {
         continue;
       }
 
       const state = nameToState(name);
 
-      const params = stateMatch.groups!["params"];
+      const params = stateMatch.groups?.params ?? "";
       const shape = extract(shapeRe, params);
       if (shape === "doublecircle") {
         accepts.push(state);
@@ -147,9 +143,7 @@ export const parseDOT = (dot: string): Automaton => {
 
   const states = Array.from(nameToStateMap.values());
   const alphabet = Array.from(
-    new Set(
-      Array.from(transitions.values()).flatMap((map) => Array.from(map.keys())),
-    ),
+    new Set(Array.from(transitions.values()).flatMap((map) => Array.from(map.keys()))),
   ).sort();
 
   return Object.freeze({
