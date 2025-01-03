@@ -124,7 +124,7 @@ function ControlPanel({
             <GearIcon />
           </Button>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className="max-h-full overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Configuration</DialogTitle>
             <DialogDescription>

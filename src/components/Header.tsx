@@ -2,7 +2,7 @@ import { Link2Icon } from "@radix-ui/react-icons";
 
 export function Header() {
   return (
-    <header className="h-16 border-b border-gray-200 py-4 flex items-end">
+    <header className="min-h-16 border-b border-gray-200 py-4 flex items-end">
       <h1 className="text-3xl font-bold ml-4 text-primary">
         Angluin's L* Algorithm Visualization
         <small className="ml-2 font-normal">
