@@ -242,7 +242,7 @@ function ObservationTableView({ table }: ObservationTableViewProps) {
     <ScrollArea className="h-[calc(100vh-19rem)] w-1/2">
       <h2 className="ml-2 font-bold text-lg">Observation table</h2>
       <table className="relative ml-2 w-full table-fixed overflow-x-auto text-sm">
-        <thead className="sticky top-0 bg-gray-50 text-center text-gray-700">
+        <thead className="sticky top-0 z-10 bg-gray-50 text-center text-gray-700">
           <tr className="my-2">
             <th />
             {separators.map((separator) => (
