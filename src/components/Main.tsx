@@ -246,7 +246,7 @@ function ObservationTableView({ table }: ObservationTableViewProps) {
           <tr className="my-2">
             <th />
             {separators.map((separator) => (
-              <th key={separator} scope="col">
+              <th key={separator} className="fade-in animate-in duration-500" scope="col">
                 {JSON.stringify(separator)}
               </th>
             ))}
@@ -259,10 +259,15 @@ function ObservationTableView({ table }: ObservationTableViewProps) {
                 key={state}
                 className={`my-2${index < states.size - 1 ? " border-b" : " border-gray-900 border-b-2"}`}
               >
-                <th scope="row">{JSON.stringify(state)}</th>
+                <th scope="row" className="fade-in animate-in duration-300">
+                  {JSON.stringify(state)}
+                </th>
                 {row.map((value, index) => (
-                  // biome-ignore lint/suspicious/noArrayIndexKey:
-                  <td key={index} className={`text-center ${value ? "bg-green-500" : "bg-red-500"}`}>
+                  <td
+                    // biome-ignore lint/suspicious/noArrayIndexKey:
+                    key={index}
+                    className={`fade-in animate-in text-center duration-300 ${value ? "bg-green-500" : "bg-red-500"}`}
+                  >
                     {value ? <CheckIcon className="inline-block" /> : <Cross2Icon className="inline-block" />}
                   </td>
                 ))}
@@ -271,11 +276,19 @@ function ObservationTableView({ table }: ObservationTableViewProps) {
           })}
           {Array.from(extensions).map(([extension, row], index) => {
             return (
-              <tr key={extension} className={`my-2${index < extensions.size - 1 ? " border-b" : ""}`}>
-                <th scope="row">{JSON.stringify(extension)}</th>
+              <tr
+                key={extension}
+                className={`fade-out my-2 animate-out duration-300${index < extensions.size - 1 ? " border-b" : ""}`}
+              >
+                <th scope="row" className="fade-in animate-in duration-300">
+                  {JSON.stringify(extension)}
+                </th>
                 {row.map((value, index) => (
-                  // biome-ignore lint/suspicious/noArrayIndexKey:
-                  <td key={index} className={`text-center ${value ? "bg-green-500" : "bg-red-500"}`}>
+                  <td
+                    // biome-ignore lint/suspicious/noArrayIndexKey:
+                    key={index}
+                    className={`fade-in animate-in text-center duration-300 ${value ? "bg-green-500" : "bg-red-500"}`}
+                  >
                     {value ? <CheckIcon className="inline-block" /> : <Cross2Icon className="inline-block" />}
                   </td>
                 ))}
